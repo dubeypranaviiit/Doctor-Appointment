@@ -35,16 +35,42 @@ function Doctors() {
   <div  className='w-full grid grid-cols-auto gap-4 gap-y-6'>
     {
         filterDoc.map((item,index)=>(
-          <div onClick={()=>navigate(`/appointment/${item._id}`)} className='border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500' key={index}>
-              <img className="bg-blue-50"src={item.image} alt="Doctor image" />
-              <div className='p-4'>
-                  <div className='flex items-center gap-2  text-sm text-center text-green-500'>
-                  <p className='w-2 h-2 bg-green-500 rounded-full'></p><p>Available</p>
-                  </div>
-               < p className='text-gray-900 text-lg font-medium'> {item.name}</p>
-               <p className=' text-gray-600 text-sm'>{item.speciality}</p>
-              </div>
-              </div>
+          <div
+  onClick={() => navigate(`/appointment/${item._id}`)}
+  key={index}
+  className="bg-white border border-blue-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-2 transition-all duration-300 cursor-pointer"
+>
+  {/* Image */}
+  <div className="relative">
+    <img
+      className="w-full h-48 object-cover bg-blue-50"
+      src={item.image}
+      alt="Doctor"
+    />
+
+    {/* Availability Badge */}
+    <div className={`absolute top-3 left-3 bg-white px-3 py-1 rounded-full shadow text-xs flex items-center gap-2 ${item.available !== false ? 'text-green-600' : 'text-gray-400'}`}>
+      <span className={`w-2 h-2 rounded-full ${item.available !== false ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+      {item.available !== false ? 'Available' : 'Unavailable'}
+    </div>
+  </div>
+
+  {/* Info */}
+  <div className="p-5">
+    <p className="text-gray-900 text-lg font-semibold">
+      {item.name}
+    </p>
+
+    <p className="text-gray-500 text-sm mt-1">
+      {item.speciality}
+    </p>
+
+    {/* Button */}
+    <button className="mt-4 w-full border border-blue-500 text-blue-600 py-2 rounded-lg text-sm font-medium hover:bg-blue-500 hover:text-white transition-all duration-300">
+      Book Appointment
+    </button>
+  </div>
+</div>
       ))
     }
   </div>
