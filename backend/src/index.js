@@ -17,6 +17,14 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cors())
 
+// Connect DB & Cloudinary eagerly for Serverless
+dbConnect()
+cloudinaryConnect()
+    .then(() => console.log("Cloudinary connected successfully"))
+    .catch((err) => {
+        console.log(`Error connecting cloudinary: ${err}`);
+    })
+
 app.get('/', (req, res) => {
     res.json("API is working")
 })
@@ -25,12 +33,10 @@ app.use('/api/doctor', doctorRouter)
 app.use('/api/user', userRouter)
 app.use('/api/video', videoRouter)
 
-app.listen(port, () => {
-    console.log(`Server is running on Port: ${port}`);
-    dbConnect()
-    cloudinaryConnect()
-        .then(() => console.log("Cloudinary connected successfully"))
-        .catch((err) => {
-            console.log(`Error connecting cloudinary: ${err}`);
-        })
-})
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => {
+        console.log(`Server is running on Port: ${port}`);
+    })
+}
+
+export default app
