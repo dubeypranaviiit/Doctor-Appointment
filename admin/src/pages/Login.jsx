@@ -1,70 +1,146 @@
-
- import {assets_admin} from "../assets/assets_admin/assets.js"
- import { useContext, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { AdminContext } from "../context/AdminContext.jsx"
+import { DoctorContext } from "../context/DoctorContext.jsx"
 import axios from "axios"
-import {toast} from "react-toastify"
- const Login = ()=>{
-    const [state,setState] =useState('Admin')
-    const {setAToken,backendUrl} =useContext(AdminContext)
-    const [email,setEmail]=useState('')
-    const [password,setPassword]=useState('')
-    const onSubmitHandler = async (event)=>{
-       event.preventDefault();
-   try{
-    if(state==='Admin'){
-    const {data}= await axios.post(backendUrl+'/api/admin/login',{email,password})
-    if(data.success)
-    {
-        console.log("Login successful. Token received:", data.token);
-        localStorage.setItem('aToken',data.token)
-       setAToken(data.token)
-       toast.success("Login successful!"); 
-    }else{
-        console.log(`invalid username /password`);
-        toast.error("please try again later")
-    }
-    }else{
+import { toast } from "react-toastify"
 
-    }
-   }catch(error){
+const Login = () => {
+  const [state, setState] = useState('Admin')
+  const { setAToken, backendUrl } = useContext(AdminContext)
+  const { setDToken } = useContext(DoctorContext)
+  
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-   }
-    }
-  return (
-   <form className="min-h-[80vh] flex items-center" onSubmit={onSubmitHandler} >
-    <div className="flex flex-col gap-3 m-auto  items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-[# text-sm shadow-xl">
-        <p className="text-2xl font-semibold m-auto"><span className="text-primary">{state}</span> Login</p>
-        <div className="w-full">
-            <p>Email</p>
-            <input type="email" required
-            className="border border-[#DADADA] rounded w-full p-2 mt-1" 
-            onChange={(e)=>{
-                setEmail(e.target.value)
-            }}
-            value={email}
-            />
-        </div>
-        <div className="w-full">
-            <p>Pasword</p>
-            <input type="password" required
-             className="border border-[#DADADA] rounded w-full p-2 mt-1"
-             onChange={(e)=>{
-                setPassword(e.target.value)
-            }}
-            value={password}
-           />
-        </div>
-        <button 
-         className="   bg-primary text-white w-full rounded-md  py-3 text-base"
-        >Login</button>
-        {
-            state ==='Admin'
-            ? <p>Doctor Login ?<span className="text-primary underline cursor-pointer" onClick={()=>setState('Doctor')}>Click here</span></p>
-            : <p>Admin Login ?<span className="text-primary underline cursor-pointer" onClick={()=>setState('Doctor')} >Click here</span></p>
+  const onSubmitHandler = async (event) => {
+    event.preventDefault()
+    setIsLoading(true)
+    try {
+      if (state === 'Admin') {
+        const { data } = await axios.post(backendUrl + '/api/admin/login', { email, password })
+        if (data.success) {
+          localStorage.setItem('aToken', data.token)
+          setAToken(data.token)
+          toast.success("Welcome, Admin! Access granted.")
+        } else {
+          toast.error(data.message || "Invalid credentials. Please try again.")
         }
+      } else {
+        const { data } = await axios.post(backendUrl + '/api/doctor/login', { email, password })
+        if (data.success) {
+          localStorage.setItem('dToken', data.token)
+          setDToken(data.token)
+          toast.success("Welcome back, Doctor!")
+        } else {
+          toast.error(data.message || "Invalid credentials. Please try again.")
+        }
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error(error.response?.data?.message || "Connection failed. Please check your credentials.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#f1f5f9] to-[#e2e8f0] flex items-center justify-center p-4">
+      <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/3 w-80 h-80 bg-[#10b981]/5 rounded-full blur-3xl pointer-events-none" />
+
+      <form 
+        onSubmit={onSubmitHandler} 
+        className="w-full max-w-[420px] bg-white/85 backdrop-blur-xl border border-white/50 shadow-[0_20px_50px_rgba(95,111,255,0.08)] rounded-3xl p-8 sm:p-10 relative z-10 transition-all duration-300"
+      >
+        <div className="flex flex-col items-center mb-8">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-10 h-10 bg-primary/10 text-primary flex items-center justify-center rounded-2xl shadow-inner">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 10.5V20a2 2 0 01-2 2H7a2 2 0 01-2-2v-9.5m14 0a2 2 0 00-2-2h-3a2 2 0 00-2 2v3m4-3a2 2 0 012 2v3m-8-3H7a2 2 0 00-2 2v3m0 0h14" />
+              </svg>
+            </div>
+            <span className="text-2xl font-black text-gray-900 tracking-tight">Swasthya<span className="text-primary">Sewa</span></span>
+          </div>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Management & Staff Console</p>
+        </div>
+
+        <div className="flex bg-gray-100/80 p-1.5 rounded-2xl w-full mb-8 relative border border-gray-200/40">
+          <button 
+            type="button"
+            onClick={() => { setState('Admin'); setEmail(''); setPassword(''); }}
+            className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 relative z-10 ${state === 'Admin' ? 'text-white' : 'text-gray-500 hover:text-gray-800'}`}
+          >
+            Admin Portal
+          </button>
+          <button 
+            type="button"
+            onClick={() => { setState('Doctor'); setEmail(''); setPassword(''); }}
+            className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 relative z-10 ${state === 'Doctor' ? 'text-white' : 'text-gray-500 hover:text-gray-800'}`}
+          >
+            Doctor Portal
+          </button>
+          <div 
+            className={`absolute top-1.5 bottom-1.5 left-1.5 w-[calc(50%-6px)] bg-primary rounded-xl transition-transform duration-300 shadow-md shadow-primary/20 ${
+              state === 'Doctor' ? 'translate-x-[calc(100%+6px)]' : 'translate-x-0'
+            }`}
+          />
+        </div>
+
+        <div className="space-y-5">
+          <div className="w-full flex flex-col items-start">
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-1">Email Address</label>
+            <div className="relative w-full mt-1.5">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </span>
+              <input 
+                type="email" 
+                required
+                placeholder="name@swasthyasewa.com"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all duration-200 text-sm text-gray-800 font-medium placeholder-gray-400" 
+                onChange={(e) => setEmail(e.target.value)}
+                value={email}
+              />
+            </div>
+          </div>
+
+          <div className="w-full flex flex-col items-start">
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-1">Password</label>
+            <div className="relative w-full mt-1.5">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </span>
+              <input 
+                type="password" 
+                required
+                placeholder="••••••••"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all duration-200 text-sm text-gray-800 font-medium placeholder-gray-400"
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+              />
+            </div>
+          </div>
+        </div>
+
+        <button 
+          type="submit"
+          disabled={isLoading}
+          className="w-full bg-primary hover:bg-[#4d5cf5] active:scale-[0.98] text-white py-3.5 rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-200 mt-8 flex justify-center items-center gap-2 text-sm disabled:bg-primary/50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? (
+            <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          ) : `Sign In as ${state}`}
+        </button>
+      </form>
     </div>
-   </form>
   )
 }
 
