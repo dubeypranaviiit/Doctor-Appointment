@@ -40,6 +40,26 @@ const userSchema = new mongoose.Schema({
     phone:{
         type:String,
         default:"0000000000"
+    },
+    bloodGroup:{
+        type:String,
+        default:"Not Selected"
+    },
+    abhaNumber:{
+        type:String,
+        default:"Not Selected"
+    },
+    height:{
+        type:String,
+        default:"Not Selected"
+    },
+    weight:{
+        type:String,
+        default:"Not Selected"
+    },
+    allergies:{
+        type:String,
+        default:"None"
     }
 
 },{timestamps:true}

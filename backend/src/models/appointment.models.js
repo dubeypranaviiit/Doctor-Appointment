@@ -20,7 +20,7 @@ const appointmentSchema = new mongoose.Schema({
         required:true
     },
     userData:{
-        type:String,
+        type:Object,
         required:true
     },
     docData:{
@@ -43,9 +43,48 @@ const appointmentSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
+    paymentId:{
+        type:String,
+        default:null
+    },
     isCompleted:{
         type:Boolean,
         default:false
+    },
+    checkupReport:{
+        type:Object,
+        default:null
+    },
+    consultationType:{
+        type:String,
+        enum:['online','offline'],
+        default:'offline'
+    },
+    videoCallId:{
+        type:String,
+        default:null
+    },
+    videoCallLink:{
+        type:String,
+        default:null
+    },
+    videoCallStatus:{
+        type:String,
+        enum:['pending','active','ended'],
+        default:'pending'
+    },
+    refundId:{
+        type:String,
+        default:null
+    },
+    refundStatus:{
+        type:String,
+        enum:['none','initiated','processed','failed'],
+        default:'none'
+    },
+    refundAmount:{
+        type:Number,
+        default:0
     }
 
 })

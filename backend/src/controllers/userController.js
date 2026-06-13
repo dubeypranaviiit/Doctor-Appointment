@@ -1,5 +1,6 @@
 import userModel from "../models/user.models.js"
 import {v2 as cloudinary} from "cloudinary"
+import checkupModel from "../models/checkup.models.js"
 // Api to get user profile data 
 
 const getProfile = async(req,res)=>{
@@ -23,7 +24,7 @@ const updateProfile =async (req,res)=>{
 
 
     try{
-        const {userId,name,phone,address,dob,gender} = req.body
+        const {userId,name,phone,address,dob,gender,bloodGroup,abhaNumber,height,weight,allergies} = req.body
         const imageFile =req.file
 if(!name || !phone || !gender || !dob){
     return res.status(400).json({
@@ -32,7 +33,7 @@ if(!name || !phone || !gender || !dob){
     })
 }
 
-await userModel.findByIdAndUpdate(userId,{name,phone,address:JSON.parse(address),dob,gender})
+await userModel.findByIdAndUpdate(userId,{name,phone,address:JSON.parse(address),dob,gender,bloodGroup,abhaNumber,height,weight,allergies})
     
 
 if(imageFile){
@@ -59,4 +60,60 @@ res.status(200).json({
     }
    
 }
-export {getProfile,updateProfile}
+const saveCheckup = async (req, res) => {
+    try {
+        const { userId, age, gender, duration, temperature, heartRate, bloodPressure, symptoms, severity, recommendedSpecialty, advice } = req.body
+        if (!userId || !age || !gender || !duration || !temperature || !heartRate || !bloodPressure || !symptoms || !severity || !recommendedSpecialty || !advice) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing fields"
+            })
+        }
+
+        const newCheckup = new checkupModel({
+            userId,
+            age,
+            gender,
+            duration,
+            temperature,
+            heartRate,
+            bloodPressure,
+            symptoms,
+            severity,
+            recommendedSpecialty,
+            advice
+        })
+
+        const saved = await newCheckup.save()
+
+        res.status(200).json({
+            success: true,
+            message: "Report saved successfully",
+            reportId: saved._id
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+const getCheckups = async (req, res) => {
+    try {
+        const { userId } = req.body
+        const checkups = await checkupModel.find({ userId }).sort({ date: -1 })
+        res.status(200).json({
+            success: true,
+            checkups
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+export {getProfile,updateProfile,saveCheckup,getCheckups}

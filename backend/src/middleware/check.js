@@ -1,8 +1,6 @@
  const dataCheck =(req,res,next)=>{
     const {name,email,password,degree,experience,speciality,fees,about}= req.body
     const imageFile=req.file
-    console.log(imageFile)
-    console.log(name,email,password,degree,experience,speciality,fees,about);
     if(!name || !email || !password  || !degree ||  !fees ){
         return res.status(400).json({
             success: false,
